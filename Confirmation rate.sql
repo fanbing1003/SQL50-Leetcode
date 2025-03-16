@@ -25,17 +25,34 @@ values
     (2, '2021-01-06 03:30:46', 'confirmed'),
     (2, '2021-01-06 03:30:46', 'timeout');
 
+
 Select a1.user_id, COALESCE(round(a2.confirmation_rate, 2), 0.00) as confirmation_rate
 from leetcode.signups as a1 left join 
 (
-select 
-	user_id, 
-    count(case when act = 'confirmed' then 1 end)/count(user_id) as confirmation_rate
+select user_id, count(case when act = 'confirmed' then 1 end)/count(user_id) as confirmation_rate
 from leetcode.confirmations
 group by user_id
 ) as a2
 on a1.user_id = a2.user_id;
 
+
+
+select t1.user_id, COALESCE(round(t2.b/t1.a, 2), 0) AS confirmation_rate
+from (
+    select s.user_id, count(c.time_stamp) as a
+    from Signups as s
+    left join Confirmations as c
+    on s.user_id = c.user_id
+    group by s.user_id
+) t1 
+left join
+(
+    select user_id, count(action) as b
+    from Confirmations c2
+    where action = 'Confirmed'
+    group by c2.user_id
+) t2
+on t1.user_id = t2.user_id
 
 
 
